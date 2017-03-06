@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="structuredLogging" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/structuredLoggingDebug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+				</Compiler>
+				<Linker>
+					<Add library="/lib64/libpthread.so" />
+					<Add library="/usr/lib64/libboost_log.so" />
+					<Add library="/usr/lib64/libboost_date_time.so" />
+					<Add library="/usr/lib64/libboost_filesystem.so" />
+					<Add library="/usr/lib64/libboost_thread.so" />
+					<Add library="/usr/lib64/libboost_timer.so" />
+					<Add library="/usr/lib64/libboost_chrono.so" />
+					<Add library="/usr/lib64/libboost_system.so" />
+					<Add library="/usr/lib64/libboost_unit_test_framework.so" />
+					<Add library="/usr/lib64/libboost_regex.so" />
+					<Add library="/usr/lib64/libunwind.so" />
+					<Add directory="/usr/lib64/boost" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/structuredLogging" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++14" />
+					<Add option="-I/home/opt/boost" />
+					<Add option="-fPIC" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="/lib64/libpthread.so" />
+					<Add library="/usr/lib64/libboost_log.so" />
+					<Add library="/usr/lib64/libboost_date_time.so" />
+					<Add library="/usr/lib64/libboost_filesystem.so" />
+					<Add library="/usr/lib64/libboost_thread.so" />
+					<Add library="/usr/lib64/libboost_timer.so" />
+					<Add library="/usr/lib64/libboost_chrono.so" />
+					<Add library="/usr/lib64/libboost_system.so" />
+					<Add library="/usr/lib64/libboost_unit_test_framework.so" />
+					<Add library="/usr/lib64/libboost_regex.so" />
+					<Add library="/usr/lib64/libunwind.so" />
+					<Add directory="/usr/lib64/" />
+				</Linker>
+			</Target>
+			<Target title="UnitTest">
+				<Option output="structuredLoggingUnitTest" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-std=c++14" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-I/usr/include/boost" />
+					<Add option="-fPIC" />
+					<Add directory="/mnt-btrfs/home/jar/projects/structuredLogger" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg" />
+					<Add library="/home/jar/projects/structuredLogger/bin/Debug/libstructuredLoggingDebug.so" />
+					<Add library="/lib64/libpthread.so" />
+					<Add library="/usr/lib64/libboost_log.so" />
+					<Add library="/usr/lib64/libboost_date_time.so" />
+					<Add library="/usr/lib64/libboost_filesystem.so" />
+					<Add library="/usr/lib64/libboost_thread.so" />
+					<Add library="/usr/lib64/libboost_timer.so" />
+					<Add library="/usr/lib64/libboost_chrono.so" />
+					<Add library="/usr/lib64/libboost_system.so" />
+					<Add library="/usr/lib64/libboost_unit_test_framework.so" />
+					<Add library="/usr/lib64/libboost_regex.so" />
+					<Add library="/usr/lib64/libunwind.so" />
+					<Add directory="/usr/lib64" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++14" />
+			<Add option="-fexceptions" />
+			<Add option="-fPIC" />
+			<Add option="-DBOOST_LOG_DYN_LINK" />
+			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
+			<Add directory="/mnt-btrfs/home/jar/projects/structuredLogger" />
+		</Compiler>
+		<Linker>
+			<Add library="/lib64/libpthread.so" />
+			<Add library="/usr/lib64/libboost_log.so" />
+			<Add library="/usr/lib64/libboost_date_time.so" />
+			<Add library="/usr/lib64/libboost_filesystem.so" />
+			<Add library="/usr/lib64/libboost_thread.so" />
+			<Add library="/usr/lib64/libboost_timer.so" />
+			<Add library="/usr/lib64/libboost_chrono.so" />
+			<Add library="/usr/lib64/libboost_system.so" />
+			<Add library="/usr/lib64/libboost_unit_test_framework.so" />
+			<Add library="/usr/lib64/libboost_regex.so" />
+			<Add library="/usr/lib64/libunwind.so" />
+			<Add directory="/usr/lib64/boost" />
+		</Linker>
+		<Unit filename="stackTrace.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="stackTrace.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="structuredLogger.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="structuredLogger.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="test/main.cpp">
+			<Option target="UnitTest" />
+		</Unit>
+		<Unit filename="test/msgFormatVerify.cpp">
+			<Option target="UnitTest" />
+		</Unit>
+		<Unit filename="test/msgFormatVerify.h">
+			<Option target="UnitTest" />
+		</Unit>
+		<Unit filename="test/stackdumptest.cpp">
+			<Option target="UnitTest" />
+		</Unit>
+		<Unit filename="test/stackdumptest.h">
+			<Option target="UnitTest" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
