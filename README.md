@@ -14,6 +14,7 @@
 <li> phthreads library </li>
 </ul>
 <li> make all -f structuredLogger.cbp.mak or use codeblocks project file </li>
+<li> documentation can be generated from doxygen </>
 </ul>
 </ul>
 <h2>Features</h2>
