@@ -74,11 +74,11 @@
 					<Add option="-g" />
 					<Add option="-I/usr/include/boost" />
 					<Add option="-fPIC" />
-					<Add directory="/mnt-btrfs/home/jar/projects/structuredLogger" />
+					<Add directory="structuredLogger" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg" />
-					<Add library="/home/jar/projects/structuredLogger/bin/Debug/libstructuredLoggingDebug.so" />
+					<Add library="bin/Debug/libstructuredLoggingDebug.so" />
 					<Add library="/lib64/libpthread.so" />
 					<Add library="/usr/lib64/libboost_log.so" />
 					<Add library="/usr/lib64/libboost_date_time.so" />
@@ -101,7 +101,7 @@
 			<Add option="-fPIC" />
 			<Add option="-DBOOST_LOG_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
-			<Add directory="/mnt-btrfs/home/jar/projects/structuredLogger" />
+			<Add directory="structuredLogger" />
 		</Compiler>
 		<Linker>
 			<Add library="/lib64/libpthread.so" />
