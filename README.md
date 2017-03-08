@@ -28,4 +28,8 @@
 <code>record-number date severity [token] message  </code><br>
 <code> 4 2017-03-06 14:48:09.108104 \<notification \> [void s_StructruedLogging::general_logging::test_method()] msg info GEN </code> <br>
 <code> 24 2017-03-06 14:48:09.119579 \<debug \> [void s_StructruedLogging::debugLogging::test_method()] [0x00007ffff7fea740] msg debug DEBUG </code> 
-
+<h3>Known bugs</h3>
+<ul>
+<li> logging timed module execution capture doesn't work</li>
+<li> scope logging options  don't work </li>
+</ul>
