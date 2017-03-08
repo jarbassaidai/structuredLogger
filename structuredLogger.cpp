@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/container/map.hpp"
 #include "structuredLogger.h"
 std::string FormatTime();
 
@@ -28,6 +29,10 @@ min_severity_filter structuredLogger::m_min_severity = expr::channel_severity_fi
 
 // This mutable constant will always lock exclusively
 exclusive_mc structuredLogger::m_tokenattr("method");
+///\fn getInstance
+///\arg const char * logname
+///\arg t_loggingStyle
+///\brief get single instance logger
 
 std::shared_ptr<structuredLogger>  structuredLogger::getInstance(const char * logname, t_loggingStyle logStyle)
 {
@@ -35,6 +40,34 @@ std::shared_ptr<structuredLogger>  structuredLogger::getInstance(const char * lo
      std::shared_ptr<structuredLogger> rVal = s_instance.getInstance();
      rVal->init(logname,logStyle);
       return rVal;
+}
+///\fn getInstanceByName
+///\arg const char * logname
+///\arg t_loggingStyle
+///\brief multiple instances by name
+
+std::shared_ptr<structuredLogger>  structuredLogger::getInstanceByName(const char * logname, t_loggingStyle logStyle)
+{
+    static boost::container::map<std::string, structuredLogger * > m_fileMap;
+    boost::container::map<std::string, structuredLogger*>::iterator it;
+    if (m_fileMap.empty()) {
+        m_fileMap.insert(std::pair<std::string,structuredLogger *>(std::string(logname),new structuredLogger(logname,logStyle)) );
+
+    }else {
+
+        it = m_fileMap.find(std::string(logname));
+        if (it == m_fileMap.end()) {
+            m_fileMap.insert(std::pair<std::string,structuredLogger *>(std::string(logname),new structuredLogger(logname,logStyle)) );
+        }
+    }
+
+    it = m_fileMap.find(std::string(logname));
+
+     return (std::shared_ptr<structuredLogger>(it->second));
+}
+structuredLogger::structuredLogger(const char *logname,t_loggingStyle logStyle)
+{
+    init(logname,logStyle);
 }
 ///\fn init
 ///\arg const char * logname/filespec [in]
@@ -48,10 +81,15 @@ std::shared_ptr<structuredLogger>  structuredLogger::getInstance(const char * lo
 void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
 {
     if (!m_init) {
+        if (!(logStyle & (singleFile|allInfoFile|sepErrorFile|sepDebugFile))) {
+            struct badLoggingStyle b;
+            throw(b);
+        }
         if (logname == nullptr)
             logname = "program";
         ///set up log name for rotation
         m_fname.append(logname);
+
         m_fname.append(FormatTime());
 
         m_init = true;
@@ -71,6 +109,7 @@ void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
     normalFormatter();
 
     /// normal log on by default
+    /// allInfoFile covers severity normal through warning
     if (m_enabledLoggers & allInfoFile)
     {
         std::string lname(m_fname);
@@ -95,6 +134,7 @@ void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
     }
                                           /// error log
     /// todo make this optional
+    /// add a separate <name><date>.error file covering severity error through stacktrace
     if (m_enabledLoggers & sepErrorFile)
     {
         std::string lname(m_fname);
@@ -116,7 +156,7 @@ void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
 
     /// debug log
     /// todo make this optional
-    ///
+    /// separate file covering severity debug through stacktrace
     if (m_enabledLoggers & sepDebugFile)
     {
         std::string lname(m_fname);
@@ -135,7 +175,25 @@ void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
         logging::core::get()->add_sink(sink);
         sink.reset();
     }
+    /// single file covering severity normal through stacktrace
+    if (m_enabledLoggers & singleFile)
+    {
+          std::string lname(m_fname);
+        lname += ".everything";
+                                          ///  boost::shared_ptr< text_sink >  sink = boost::make_shared< text_sink >() ;
+        boost::shared_ptr< text_sink >  sink(new text_sink());
+                                                        ///keywords::file_name=lname.c_str(),
+                                                        ///keywords::rotation_size = ROTATIONSIZE_1MB));
+        ///sink = boost::make_shared<text_sink>();
+        m_sinkDebug = sink;
+        sink->locked_backend()->add_stream(boost::make_shared< std::ofstream >(lname.c_str() ));
+        sink->locked_backend()->auto_flush(true);
+        sink->set_formatter(m_fmtDebug);
+        sink->set_filter(severity <= stacktrace );
 
+        logging::core::get()->add_sink(sink);
+        sink.reset();
+    }
 
 /*
     attrs::mutable_constant<std::string> keyWordAttr("INFORMATION");
@@ -167,7 +225,6 @@ void structuredLogger::init(const char * logname,t_loggingStyle logStyle)
 ///< creates the debug formatter with the following out put form
 ///< full message looks like
 ///< logRecordNumber yyyy-mm-dd hh:mm:ss <severity>  [scope] [thread] [timing] message ** debug plus timing
-
 
 void structuredLogger::debugFormatter() {
 ///logging::formatter
@@ -243,26 +300,33 @@ structuredLogger::~structuredLogger()
 {
     if (! m_deleteInProgress) {
         m_deleteInProgress = true;
-        logging::core::get()->remove_all_sinks();
-        /**
+
+        //logging::core::get()->remove_all_sinks();
+
         boost::shared_ptr<logging::core> core = logging::core::get();
-        std::cout  << " normalSink count:" << m_sinkNormal.use_count() << std::endl;
-        m_sinkNormal->flush();
-         m_sinkNormal->stop();
-        //core->remove_sink(m_sinkNormal);
-        m_sinkNormal.reset();
+
+        //std::cout  << " normalSink count:" << m_sinkNormal.use_count() << std::endl;
+        if (m_sinkNormal.get() != nullptr){
+            m_sinkNormal->flush();
+            m_sinkNormal->stop();
+            //core->remove_sink(m_sinkNormal);
+            m_sinkNormal.reset();
+        }
 
 
        // core->remove_sink(m_sinkDebug);
-        m_sinkDebug->stop();
-        m_sinkDebug->flush();
-        m_sinkDebug.reset();
+        if (m_sinkDebug.get() != nullptr){
+            m_sinkDebug->flush();
+            m_sinkDebug->stop();
+            m_sinkDebug.reset();
+        }
 
         //core->remove_sink(m_sinkError);
-        m_sinkError->stop();
-        m_sinkError->flush();
-        m_sinkError.reset();
-        **/
+        if (m_sinkError.get() != nullptr){
+            m_sinkError->flush();
+            m_sinkError->stop();
+            m_sinkError.reset();
+        }
         m_init = false;
         m_deleteInProgress = false;
     }

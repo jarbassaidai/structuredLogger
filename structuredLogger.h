@@ -28,6 +28,7 @@
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/support/exception.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <exception>
 #include "stackTrace.h"
 
 
@@ -40,7 +41,8 @@ namespace keywords = boost::log::keywords;
 
 static std::string blank;
 
-
+///\brief severity levels
+///< normal,notification,warning, error, critical, debug, stacktrace
     typedef enum severity_level
     {
         normal=0,
@@ -52,6 +54,11 @@ static std::string blank;
         stacktrace
     }e_severity_level;
 
+///\brief t_loggingStyle
+///< singleFile (all message types in one file and no other files  )
+///<allInfoFile (normal information and warning messages )
+///<sepErrorFile (separate error log file )
+///<sepDebugFile (separate debug log file )
     typedef enum file_logger
     {
         singleFile = 0x1,
@@ -95,8 +102,12 @@ public:
         }
         return s_instance;
     }
+
 };
 
+struct badLoggingStyle : std::exception {
+  const char* what() const noexcept {return "Undefined or non implemented t_loggingStyle (second argument to constructor)\n";}
+};
 
 
 std::ostream& operator<< (std::ostream& strm, severity_level);
@@ -117,6 +128,7 @@ class structuredLogger
         void stack_trace(const char* item,const char * method=__PRETTY_FUNCTION__);
         void inline generalL(severity_level l, const char *msg , const char * token=__PRETTY_FUNCTION__) { return general_logging(msg,l,token);}
         std::shared_ptr<structuredLogger> static getInstance(const char * logname, t_loggingStyle logStyle=allInfoFile);
+        std::shared_ptr<structuredLogger> static getInstanceByName(const char * logname, t_loggingStyle logStyle=allInfoFile);
         inline std::string &  getFname() { return m_fname; }
 #if 0
         void inline setSeverity_level(severity_level l) { m_sev_level = l; }
@@ -157,9 +169,10 @@ class structuredLogger
         boost::shared_ptr< text_sink > m_sinkError;
         boost::shared_ptr< text_sink > m_sinkNormal;
 
+
     private:
         bool m_init=false;
-        bool m_deleteInProgress = true;
+        bool m_deleteInProgress = false;
 };
 
 #endif // STRUCTUREDLOGGER_H
