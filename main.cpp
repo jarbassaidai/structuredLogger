@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_SUITE(s_StructruedLogging)
 BOOST_AUTO_TEST_CASE(general_logging)
 {
     setup s;
-    t_spSL elog = structuredLogger::getInstance("structLogUtest.1",(t_loggingStyle) (allInfoFile| tokenMsg | sepErrorFile | sepDebugFile));
+    t_spSL elog = structuredLogger::getInstanceByName("logAllPlus",(t_loggingStyle) (allInfoFile| tokenMsg | sepErrorFile | sepDebugFile));
 
     elog->generalL(normal,"message 1 GEN","test_case::msg");
     elog->generalL(normal,"msg normal 2 GEN");
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(tokenLogging)
       // since token is the method capture
       //
       setup s;
-      t_spSL elog = structuredLogger::getInstance("structLogUtest.1",(t_loggingStyle)(allInfoFile | tokenMsg));
+      t_spSL elog = structuredLogger::getInstanceByName("logall",(t_loggingStyle)(allInfoFile | tokenMsg));
 
     elog->tokenL(normal,"message 1 TOKEN","test_case::msg");
     elog->tokenL(normal,"msg normal 2 TOKEN");
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(tokenLogging)
 BOOST_AUTO_TEST_CASE(debugLogging)
 {
     setup s;
-      t_spSL elog = structuredLogger::getInstance("structLogUtest.1",sepDebugFile);
+      t_spSL elog = structuredLogger::getInstanceByName("logdebug",sepDebugFile);
 
     elog->debugL(normal,"message 1 DEBUG","test_case::msg");
     elog->debugL(normal,"msg normal 2 DEBUG");
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(debugLogging)
 BOOST_AUTO_TEST_CASE(errorLogging)
 {
     setup s;
-      t_spSL elog = structuredLogger::getInstance("structLogUtest.1",sepErrorFile);
+      t_spSL elog = structuredLogger::getInstanceByName("logerror",sepErrorFile);
 
     elog->errorL(normal,"message 1 ER","test_case::msg");
     elog->errorL(normal,"msg normal 2 ER");
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(errorLogging)
 BOOST_AUTO_TEST_CASE(timer)
 {
     setup s;
-   t_spSL  elog = structuredLogger::getInstance("structLogUtest.1");
+   t_spSL  elog = structuredLogger::getInstance("logtimer");
    elog->timed_Start("timing call start",debug);
    elog->timed_Stop("timing call stop",debug);
    elog.reset();
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(scope)
 {
     setup s;
     std::string method(__FUNCTION__);
-    t_spSL  elog = structuredLogger::getInstance("structLogUtest.1");
+    t_spSL  elog = structuredLogger::getInstanceByName("logscope");
     elog->named_scopeL(normal,"test normal",method);
     elog->named_scopeL(warning,"test warning");
     elog->named_scopeL(notification,"test info");
@@ -280,10 +280,46 @@ BOOST_AUTO_TEST_CASE(scope)
 BOOST_AUTO_TEST_CASE(default_test)
 {
     setup s;
-    t_spSL  elog = structuredLogger::getInstance("structLogUtest.1");
+    t_spSL  elog = structuredLogger::getInstance("logdefault");
     elog.reset();
 }
 
+BOOST_AUTO_TEST_CASE(singleFile_test)
+{
+    setup s;
+    t_spSL  elog = structuredLogger::getInstanceByName("logsingleFile",singleFile);
+    elog->generalL(normal,"msg normal 2 GEN");
+    elog->generalL(warning,"msg warning GEN");
+    elog->generalL(notification,"msg info GEN",__PRETTY_FUNCTION__);
+    elog->generalL(critical,"msg fata/critial GEN","getLogger::general_logging");
+    elog->generalL(debug,"msg debug GEN");
+    elog->generalL(error,"msg error GEN");
+    elog->errorL(normal,"msg normal 2 ER");
+    elog->errorL(warning,"msg warning ER");
+    elog->errorL(notification,"msg info ER",__PRETTY_FUNCTION__);
+    elog->errorL(critical,"msg fatal/critical ER",__PRETTY_FUNCTION__);
+    elog->errorL(debug,"msg debug ER");
+    elog->errorL(error,"msg error ER","structuredLogger::junk(foo.bar)");
+    elog->debugL(normal,"msg normal 2 DEBUG");
+    elog->debugL(warning,"msg warning DEBUG");
+    elog->debugL(notification,"msg info DEBUG",__PRETTY_FUNCTION__);
+    elog->debugL(critical,"msg fatal/critical DEBUG ",__PRETTY_FUNCTION__);
+    elog->debugL(debug,"msg debug DEBUG",__PRETTY_FUNCTION__);
+    elog->debugL(error,"msg error DEBUG","structuredLogger::junk(foo.bar)");
+    elog.reset();
+}
+
+BOOST_AUTO_TEST_CASE(badfiletype_test)
+{
+ setup s;
+ try {
+    t_spSL  elog = structuredLogger::getInstanceByName("logsingleFileBad",sepSocket);
+    BOOST_CHECK(elog.get() == nullptr);
+    BOOST_CHECK(elog.get() != nullptr);
+ }catch (std::exception &e){
+    std::cout << e.what() << std::endl;
+ }
+}
 /*
 BOOST_AUTO_TEST_CASE(tag)
 {
